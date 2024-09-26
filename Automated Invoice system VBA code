@@ -1,0 +1,94 @@
+Option Explicit
+
+Public InvoiceNumber As Long
+Public CustomerName As String
+Public Amount As Currency
+Public DateIssued As Date
+Public Terms As Byte
+
+
+
+Sub RecordOfInvoice()
+
+Dim NextRecord As Range
+
+
+InvoiceNumber = Range("C3")
+CustomerName = Range("B9")
+Amount = Range("I36")
+DateIssued = Range("C5")
+Terms = Range("C6")
+Dim a, b As Range
+
+Set NextRecord = ActiveWorkbook.Worksheets("Record of Invoice").Range("A1048576").End(xlUp).Offset(1)
+Set a = ActiveWorkbook.Worksheets("Record of Invoice").Range("A1048576").End(xlUp)
+Set b = ActiveWorkbook.Worksheets("Invoice Template").Range("C3")
+
+If a <> b Then
+    NextRecord = InvoiceNumber
+    NextRecord.Offset(, 1) = CustomerName
+    NextRecord.Offset(, 2) = Amount
+    NextRecord.Offset(, 3) = DateIssued
+    NextRecord.Offset(, 4) = Terms + DateIssued
+End If
+
+
+ActiveWorkbook.Save
+
+
+End Sub
+
+Sub SaveAsExcel()
+Dim FileLocation, File As String
+InvoiceNumber = Range("C3")
+CustomerName = Range("B9")
+
+Worksheets("Invoice Template").Copy
+
+Dim shp As Shape
+    
+    For Each shp In ActiveSheet.Shapes
+            shp.Delete
+    Next shp
+
+FileLocation = "C:\Users\Elitebook\Desktop\Invoices\"
+File = InvoiceNumber & "_" & CustomerName
+
+With ActiveWorkbook
+    .Sheets(1).Name = "Invoice"
+    .SaveAs Filename:=FileLocation & File, FileFormat:=51
+    .Close
+End With
+
+
+End Sub
+
+Sub SaveasPDF()
+Dim FileLocation, File As String
+InvoiceNumber = Range("C3")
+CustomerName = Range("B9")
+
+FileLocation = "C:\Users\Elitebook\Desktop\Invoices\pdffiles\"
+File = InvoiceNumber & "_" & CustomerName
+
+ActiveSheet.Range("A1:I43").ExportAsFixedFormat Type:=xlTypePDF, Filename:=FileLocation & File & ".pdf"
+
+End Sub
+
+Sub NewInvoice()
+
+InvoiceNumber = Range("C3")
+Range("C3") = InvoiceNumber + 1
+Range("C4, C6, B9, B17: G31").ClearContents
+ActiveWorkbook.Save
+
+End Sub
+
+Sub NextCustomer()
+
+    RecordOfInvoice
+    SaveAsExcel
+    SaveasPDF
+    NewInvoice
+    
+End Sub
